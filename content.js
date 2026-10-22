@@ -4,11 +4,9 @@
   let timerInterval = null;
   let startTime = 0;
   let followTimestamps = [];
-  const processedButtons = new WeakSet();
+  let processedButtons = new WeakSet();
 
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-  // 随机延时工具函数
   const getRandomBetween = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
   function formatDuration(seconds) {
@@ -18,26 +16,26 @@
     return `${hrs}:${mins}:${secs}`;
   }
 
-  // 1. 动态获取当前登录账号 Handle
+  // 1. 获取当前登录账号 Handle
   function getCurrentUserHandle() {
     const profileLink = document.querySelector('a[data-testid="AppTabBar_Profile_Link"]');
     if (profileLink) {
       const href = profileLink.getAttribute("href") || "";
-      const handle = href.replace(/^\/+/, "").split("/")[0];
+      const handle = href.replace(/^\/+/, "").split("/")[0].split("?")[0];
       if (handle) return handle.toLowerCase();
     }
 
     const accountSwitcher = document.querySelector('[data-testid="SideNav_AccountSwitcher_Button"]');
     if (accountSwitcher) {
       const text = accountSwitcher.innerText || "";
-      const match = text.match(/@([a-zA-Z0-9_]+)/);
-      if (match && match[1]) return match[1].toLowerCase();
+      const m = text.match(/@([a-zA-Z0-9_]+)/);
+      if (m && m[1]) return m[1].toLowerCase();
     }
 
     return null;
   }
 
-  // 2. 校验是否为本人粉丝页
+  // 2. 严格校验：仅允许本人粉丝页面
   function isSelfFollowersPage() {
     const pathname = window.location.pathname.toLowerCase();
     const routeMatch = pathname.match(/^\/([^\/]+)\/(verified_followers|followers)\/?$/);
@@ -115,6 +113,7 @@
   function startAutomation() {
     isRunning = true;
     followTimestamps = [];
+    processedButtons = new WeakSet();
 
     document.getElementById("x-af-start").disabled = true;
     document.getElementById("x-af-stop").disabled = false;
@@ -126,7 +125,7 @@
       document.getElementById("x-af-timer").innerText = formatDuration(elapsed);
     }, 1000);
 
-    updateStatus("正在检测待回关用户...", "运行中", "active");
+    updateStatus("正在检测待回关粉丝...", "运行中", "active");
     runLoop();
   }
 
@@ -142,7 +141,7 @@
     if (startBtn) startBtn.disabled = false;
     if (stopBtn) stopBtn.disabled = true;
 
-    updateStatus("已停止任务", "已暂停", "");
+    updateStatus("就绪", "已暂停", "");
   }
 
   // 4. 双滑动窗口限流 + 随机抖动（Jitter）
@@ -156,14 +155,12 @@
 
       let waitTime = 0;
 
-      // 20秒内不超过3个
       if (countLast20s >= 3) {
         const oldestIn20s = followTimestamps.filter((ts) => now - ts < 20000)[0];
         const wait20s = 20000 - (now - oldestIn20s) + 400;
         waitTime = Math.max(waitTime, wait20s);
       }
 
-      // 60秒内不超过10个
       if (countLast60s >= 10) {
         const oldestIn60s = followTimestamps[0];
         const wait60s = 60000 - (now - oldestIn60s) + 400;
@@ -172,27 +169,62 @@
 
       if (waitTime > 0) {
         const waitSeconds = Math.ceil(waitTime / 1000);
-        updateStatus(`触发安全限流，冷却中 (${waitSeconds}秒)...`, "限流中", "cooling");
+        updateStatus(`安全限流冷却中 (${waitSeconds}秒)...`, "限流中", "cooling");
         await delay(1000);
       } else {
-        // 核心机制：随机抖动延时（Jitter）500ms - 2000ms
         const jitterDelay = getRandomBetween(500, 2000);
-        updateStatus(`随机抖动延时中 (${jitterDelay}ms)...`, "等待中", "active");
+        updateStatus(`随机延时中 (${jitterDelay}ms)...`, "等待中", "active");
         await delay(jitterDelay);
         break;
       }
     }
   }
 
-  // 5. 严格过滤：排除 Following/Requested/Pending/Blocked，仅允许纯粹的 Follow
-  function isStrictFollowButton(btn) {
-    if (!btn || processedButtons.has(btn)) return false;
+  // 5. 判定是否属于任何“推荐关注”或“侧边栏”区域
+  function isInRecommendationModule(el) {
+    // 坚决排除右侧边栏
+    if (el.closest('[data-testid="sidebarColumn"]') || el.closest('aside')) {
+      return true;
+    }
+
+    // 排除主时间线中偶尔穿插的横向轮播/推荐组件
+    const carousel = el.closest('[data-testid="Carousel"], [aria-label*="Carousel"]');
+    if (carousel) return true;
+
+    // 检查父级容器中是否带有“推荐”相关标题
+    const cell = el.closest('[data-testid="UserCell"]');
+    if (cell) {
+      let parent = cell.parentElement;
+      while (parent && parent !== document.body && parent.getAttribute("data-testid") !== "primaryColumn") {
+        const header = parent.querySelector('h2, [role="heading"]');
+        if (header) {
+          const title = (header.innerText || "").toLowerCase();
+          if (
+            title.includes("推荐") ||
+            title.includes("who to follow") ||
+            title.includes("connect") ||
+            title.includes("相关推荐")
+          ) {
+            return true;
+          }
+        }
+        parent = parent.parentElement;
+      }
+    }
+
+    return false;
+  }
+
+  // 6. 按钮状态精准校验
+  function isValidFollowButton(btn) {
+    if (!btn || !document.body.contains(btn)) return false;
+    if (isInRecommendationModule(btn)) return false;
 
     const testId = (btn.getAttribute("data-testid") || "").toLowerCase();
-    const ariaLabel = (btn.getAttribute("aria-label") || "").toLowerCase();
-    const btnText = (btn.innerText || "").trim().toLowerCase();
+    const aria = (btn.getAttribute("aria-label") || "").toLowerCase();
+    const text = (btn.innerText || "").trim().toLowerCase();
 
-    // 强排除项关键词黑名单
+    // 强黑名单过滤
     const blacklistWords = [
       "following", "正在关注", "已关注",
       "requested", "pending", "已申请", "已请求",
@@ -201,100 +233,95 @@
     ];
 
     for (const word of blacklistWords) {
-      if (testId.includes(word) || ariaLabel.includes(word) || btnText.includes(word)) {
+      if (testId.includes(word) || aria.includes(word) || text.includes(word)) {
         return false;
       }
     }
 
-    // 白名单严格核对
-    const isPureFollowText =
-      btnText === "follow" ||
-      btnText === "关注" ||
-      ariaLabel.startsWith("follow @") ||
-      ariaLabel.startsWith("关注 @");
+    // 白名单核对：必须是纯粹的 Follow / 关注
+    const hasFollowId = testId.includes("-follow");
+    const isFollowText =
+      text === "follow" ||
+      text === "关注" ||
+      aria.startsWith("follow @") ||
+      aria.startsWith("关注 @");
 
-    const hasFollowTestId = testId.endsWith("-follow") && !testId.includes("unfollow");
-
-    return isPureFollowText || hasFollowTestId;
+    return hasFollowId || isFollowText;
   }
 
-  // 提取用户卡片中的可操作按钮
-  function getFollowBackButton(cell) {
-    const cellText = cell.innerText || "";
-    const isFollower = cellText.includes("Follows you") || cellText.includes("关注了你");
-    if (!isFollower) return null;
+  // 7. 严格在主时间线（primaryColumn）内提取待回关粉丝按钮
+  function getPendingFollowButtons() {
+    const primaryCol = document.querySelector('[data-testid="primaryColumn"]');
+    if (!primaryCol) return [];
 
-    const btn = cell.querySelector('button[data-testid*="-follow"], button[role="button"]');
-    if (!btn) return null;
+    // 仅在主时间线中的粉丝单元内抓取按钮
+    const candidates = Array.from(
+      primaryCol.querySelectorAll(
+        '[data-testid="UserCell"] button, [data-testid="UserCell"] [role="button"]'
+      )
+    );
 
-    return isStrictFollowButton(btn) ? btn : null;
+    const uniqueCandidates = Array.from(new Set(candidates));
+
+    return uniqueCandidates.filter((btn) => {
+      if (processedButtons.has(btn)) return false;
+      return isValidFollowButton(btn);
+    });
   }
 
-  function findButtons() {
-    const userCells = Array.from(document.querySelectorAll('[data-testid="UserCell"]'));
-    const buttons = [];
-    for (const cell of userCells) {
-      const btn = getFollowBackButton(cell);
-      if (btn) buttons.push(btn);
-    }
-    return buttons;
-  }
-
-  // 6. 自动化主循环（集成 DOM 滚动防呆与懒加载）
+  // 8. 主执行循环
   async function runLoop() {
-    let emptyRounds = 0;
+    let emptyCount = 0;
 
     while (isRunning) {
       if (!isSelfFollowersPage()) {
         stopAutomation();
-        updateStatus("已离开本人粉丝页，已自动暂停", "已退出", "cooling");
+        updateStatus("就绪", "已退出", "cooling");
         break;
       }
 
-      const buttons = findButtons();
+      const buttons = getPendingFollowButtons();
 
       if (buttons.length > 0) {
-        emptyRounds = 0; // 重置无目标计数
+        emptyCount = 0;
+
         for (const btn of buttons) {
           if (!isRunning) break;
+          if (processedButtons.has(btn)) continue;
 
-          processedButtons.add(btn);
-
-          // 模拟平滑滚动至元素，避免瞬间位移
           btn.scrollIntoView({ behavior: "smooth", block: "center" });
-          await delay(600);
+          await delay(500);
 
-          // 二次校验 DOM 存在性及文本状态（防止由于并发或滚动变化改变状态）
-          if (document.body.contains(btn) && isStrictFollowButton(btn)) {
+          if (isValidFollowButton(btn)) {
             await enforceRateLimits();
             if (!isRunning) break;
 
+            processedButtons.add(btn);
             btn.click();
+
             const now = Date.now();
             followTimestamps.push(now);
             followCount++;
 
-            document.getElementById("x-af-count").innerText = followCount;
+            const countEl = document.getElementById("x-af-count");
+            if (countEl) countEl.innerText = followCount;
             updateStatus(`已回关第 ${followCount} 位粉丝`, "运行中", "active");
 
-            // 单次点击后的基础行为停顿（1000ms - 2000ms）
-            await delay(getRandomBetween(1000, 2000));
+            await delay(getRandomBetween(1200, 2000));
+          } else {
+            processedButtons.add(btn);
           }
         }
       } else {
-        emptyRounds++;
-        updateStatus(`平滑滚动以拉取粉丝 (${emptyRounds})...`, "加载中", "active");
+        emptyCount++;
+        updateStatus("正在向下寻找未回关粉丝...", "扫描中", "active");
 
-        // 视口平滑滚动（每次递增 600 - 900 像素，防呆触底检测并触发无限列表 lazy load）
-        const scrollDistance = getRandomBetween(600, 900);
-        window.scrollBy({ top: scrollDistance, behavior: "smooth" });
+        // 仅对主视口进行平滑翻页
+        window.scrollBy({ top: 650, behavior: "smooth" });
+        await delay(2200);
 
-        // 等待推特数据包返回与 DOM 挂载
-        await delay(getRandomBetween(2200, 3200));
-
-        // 若连续 15 次滚动未拉取到任何未回关账号，推测已翻至粉丝列表末尾
-        if (emptyRounds >= 15) {
-          updateStatus("未发现更多待回关粉丝，已自动完成", "已完成", "");
+        if (emptyCount >= 20) {
+          updateStatus("已到达底部或无更多粉丝", "已完成", "");
           stopAutomation();
           break;
         }
@@ -302,7 +329,7 @@
     }
   }
 
-  // 7. 路由监听与状态巡检
+  // 9. 页面路由与面板巡检
   function checkRoute() {
     const panel = createUI();
     const handle = getCurrentUserHandle();
