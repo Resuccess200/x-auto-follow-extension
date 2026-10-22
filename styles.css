@@ -1,0 +1,205 @@
+#x-auto-follow-panel {
+  position: fixed !important;
+  bottom: 28px !important;
+  right: 28px !important;
+  z-index: 999999 !important;
+  width: 270px !important;
+  box-sizing: border-box !important;
+  background: rgba(0, 0, 0, 0.9) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid #2f3336 !important;
+  border-radius: 16px !important;
+  padding: 16px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+  color: #e7e9ea !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+  user-select: none !important;
+  line-height: normal !important;
+}
+
+#x-auto-follow-panel.x-hidden {
+  display: none !important;
+}
+
+.x-af-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 6px !important;
+  padding: 0 !important;
+}
+
+.x-af-header h3 {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #eff3f4 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.2 !important;
+}
+
+.x-af-user-row {
+  display: flex !important;
+  align-items: center !important;
+  font-size: 12px !important;
+  color: #71767b !important;
+  margin: 0 0 12px 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.x-af-user-handle {
+  color: #1d9bf0 !important;
+  font-weight: 600 !important;
+  margin-left: 4px !important;
+}
+
+.x-af-badge {
+  font-size: 11px !important;
+  padding: 3px 8px !important;
+  border-radius: 9999px !important;
+  background: #181818 !important;
+  color: #71767b !important;
+  border: 1px solid #2f3336 !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+}
+
+.x-af-badge.active {
+  background: rgba(29, 155, 240, 0.15) !important;
+  color: #1d9bf0 !important;
+  border-color: rgba(29, 155, 240, 0.3) !important;
+}
+
+.x-af-badge.cooling {
+  background: rgba(244, 33, 46, 0.15) !important;
+  color: #f4212e !important;
+  border-color: rgba(244, 33, 46, 0.3) !important;
+}
+
+.x-af-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+  margin: 0 0 12px 0 !important;
+  padding: 0 !important;
+}
+
+.x-af-card {
+  box-sizing: border-box !important;
+  background: #16181c !important;
+  border: 1px solid #2f3336 !important;
+  border-radius: 12px !important;
+  padding: 10px 12px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  min-height: 64px !important;
+  margin: 0 !important;
+}
+
+.x-af-card-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 4px !important;
+  padding: 0 !important;
+  width: 100% !important;
+}
+
+.x-af-card-title {
+  font-size: 11px !important;
+  color: #71767b !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.2 !important;
+}
+
+.x-af-reset-btn {
+  background: transparent !important;
+  border: none !important;
+  color: #71767b !important;
+  font-size: 11px !important;
+  cursor: pointer !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.2 !important;
+  text-decoration: underline !important;
+}
+
+.x-af-reset-btn:hover {
+  color: #eff3f4 !important;
+}
+
+.x-af-card-val {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: #eff3f4 !important;
+  font-variant-numeric: tabular-nums !important;
+  line-height: 1.2 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  text-align: left !important;
+}
+
+.x-af-status-bar {
+  font-size: 11px !important;
+  color: #71767b !important;
+  margin: 0 0 14px 0 !important;
+  padding: 0 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  min-height: 14px !important;
+  line-height: 1.2 !important;
+}
+
+.x-af-actions {
+  display: flex !important;
+  gap: 10px !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.x-af-btn {
+  box-sizing: border-box !important;
+  flex: 1 1 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 38px !important;
+  padding: 0 12px !important;
+  margin: 0 !important;
+  border-radius: 9999px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  outline: none !important;
+  transition: opacity 0.2s, background-color 0.2s !important;
+}
+
+.x-af-btn:hover:not(:disabled) {
+  opacity: 0.9 !important;
+}
+
+.x-af-btn:disabled {
+  opacity: 0.35 !important;
+  cursor: not-allowed !important;
+}
+
+#x-af-start {
+  background-color: #eff3f4 !important;
+  color: #0f1419 !important;
+  border: none !important;
+}
+
+#x-af-stop {
+  background-color: #1a0a0c !important;
+  color: #f4212e !important;
+  border: 1px solid rgba(244, 33, 46, 0.4) !important;
+}
