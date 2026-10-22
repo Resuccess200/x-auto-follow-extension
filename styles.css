@@ -3,15 +3,15 @@
   bottom: 28px !important;
   right: 28px !important;
   z-index: 999999 !important;
-  width: 270px !important;
+  width: 290px !important;
   box-sizing: border-box !important;
-  background: rgba(0, 0, 0, 0.9) !important;
+  background: rgba(0, 0, 0, 0.94) !important;
   backdrop-filter: blur(16px) !important;
   -webkit-backdrop-filter: blur(16px) !important;
   border: 1px solid #2f3336 !important;
   border-radius: 16px !important;
   padding: 16px !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65) !important;
   color: #e7e9ea !important;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
   user-select: none !important;
@@ -26,7 +26,7 @@
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  margin-bottom: 6px !important;
+  margin-bottom: 8px !important;
   padding: 0 !important;
 }
 
@@ -39,22 +39,129 @@
   line-height: 1.2 !important;
 }
 
-.x-af-user-row {
+.x-af-info-row {
   display: flex !important;
   align-items: center !important;
+  justify-content: space-between !important;
   font-size: 12px !important;
   color: #71767b !important;
-  margin: 0 0 12px 0 !important;
+  margin: 0 0 8px 0 !important;
   padding: 0 !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
 }
 
-.x-af-user-handle {
+.x-af-highlight {
   color: #1d9bf0 !important;
   font-weight: 600 !important;
   margin-left: 4px !important;
+}
+
+.x-af-mode-tag {
+  color: #00ba7c !important;
+  font-weight: 600 !important;
+}
+
+/* 原有的差值设置行 */
+.x-af-setting-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  background: #16181c !important;
+  border: 1px solid #2f3336 !important;
+  border-radius: 10px !important;
+  padding: 6px 10px !important;
+  margin: 0 0 10px 0 !important;
+  font-size: 12px !important;
+  color: #e7e9ea !important;
+}
+
+.x-af-setting-row.x-hidden {
+  display: none !important;
+}
+
+.x-af-diff-input {
+  width: 68px !important;
+  height: 26px !important;
+  background: #000000 !important;
+  border: 1px solid #2f3336 !important;
+  border-radius: 6px !important;
+  color: #eff3f4 !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+  padding: 0 6px !important;
+  outline: none !important;
+}
+
+.x-af-diff-input:focus {
+  border-color: #1d9bf0 !important;
+}
+
+/* === 新增：限速设置行 === */
+.x-af-speed-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 6px !important;
+  background: #16181c !important;
+  border: 1px solid #2f3336 !important;
+  border-radius: 10px !important;
+  padding: 6px 10px !important;
+  margin: 0 0 10px 0 !important;
+  font-size: 12px !important;
+  color: #e7e9ea !important;
+}
+
+.x-af-speed-label {
+  font-size: 11px !important;
+  color: #71767b !important;
+}
+
+.x-af-speed-input {
+  width: 42px !important;
+  height: 24px !important;
+  background: #000000 !important;
+  border: 1px solid #2f3336 !important;
+  border-radius: 6px !important;
+  color: #eff3f4 !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+  padding: 0 !important;
+  outline: none !important;
+}
+
+.x-af-speed-input:focus {
+  border-color: #1d9bf0 !important;
+}
+
+/* === 安全防护区 === */
+.x-af-shield-box {
+  background: #16181c !important;
+  border: 1px solid #2f3336 !important;
+  border-radius: 10px !important;
+  padding: 8px 10px !important;
+  margin: 0 0 10px 0 !important;
+  font-size: 11px !important;
+  color: #71767b !important;
+}
+
+.x-af-shield-title {
+  color: #eff3f4 !important;
+  font-weight: 600 !important;
+  margin-bottom: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.x-af-shield-val {
+  color: #00ba7c !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.x-af-shield-detail {
+  font-size: 10px !important;
+  color: #71767b !important;
 }
 
 .x-af-badge {
@@ -84,7 +191,7 @@
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
   gap: 10px !important;
-  margin: 0 0 12px 0 !important;
+  margin: 0 0 10px 0 !important;
   padding: 0 !important;
 }
 
@@ -97,7 +204,7 @@
   display: flex !important;
   flex-direction: column !important;
   justify-content: space-between !important;
-  min-height: 64px !important;
+  min-height: 60px !important;
   margin: 0 !important;
 }
 
@@ -135,7 +242,7 @@
 }
 
 .x-af-card-val {
-  font-size: 16px !important;
+  font-size: 15px !important;
   font-weight: 700 !important;
   color: #eff3f4 !important;
   font-variant-numeric: tabular-nums !important;
@@ -148,7 +255,7 @@
 .x-af-status-bar {
   font-size: 11px !important;
   color: #71767b !important;
-  margin: 0 0 14px 0 !important;
+  margin: 0 0 12px 0 !important;
   padding: 0 !important;
   white-space: nowrap !important;
   overflow: hidden !important;
@@ -171,7 +278,7 @@
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  height: 38px !important;
+  height: 36px !important;
   padding: 0 12px !important;
   margin: 0 !important;
   border-radius: 9999px !important;

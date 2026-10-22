@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "X 粉丝本地自动互关助手",
-  "version": "2.2.0",
-  "description": "本地自动化回关工具，适配指定主页，严格遵循滑动窗口频率限制",
+  "version": "3.0.0",
+  "description": "本地自动化回关和拓客工具，适配指定主页，严格遵循滑动窗口频率限制，可以拓展蓝v",
   "content_scripts": [
     {
       "matches": [
